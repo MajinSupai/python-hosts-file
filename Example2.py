@@ -4,7 +4,7 @@ import HostTools
 #Example for setting a host for an IP on the current subnet
 
 IPs = ['192.168.1.200', '10.0.0.61']
-HOSTS_LOCATION = 'C:\\Users\\wesle\\Documents\\Test.txt'
+HOSTS_LOCATION = 'INSERT_HOSTS_LOCATION_HERE' #Probably a random text file instead is a better idea
 
 localIP = HostTools.getLocalIP()
 
