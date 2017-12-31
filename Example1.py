@@ -7,7 +7,7 @@ import Hosts, HostTools
 
 HOME_IP = 'HOME_IP_HERE'
 LOCAL_IP = 'HOME_LOCAL_IP_HERE'
-HOSTS_LOCATION = 'HOSTS_FILE_LOCATION_HERE'
+HOSTS_LOCATION = 'HOSTS_FILE_LOCATION_HERE' #Probably a random text file is better
 
 
 publicIP = HostTools.getPublicIP()
