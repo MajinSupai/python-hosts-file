@@ -160,8 +160,6 @@ class HostsFile(object):
 		indexIP  = self.getIndexByIP(removal)
 		indexHost = self.getIndexByHost(removal)
 		
-		print(indexIP, indexHost)
-		
 		if indexIP is not None:
 			self._removeEntry(indexIP)
 		
