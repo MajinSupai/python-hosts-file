@@ -93,7 +93,7 @@ class HostsFile(object):
 		return None
 	
 	def getIndexByIP(self, searchIP):
-		for index, (notComment, ip, host) in enumerate(self._iterAll()):
+		for index, (notComment, ip, hosts) in enumerate(self._iterAll()):
 			if notComment & (ip == searchIP):
 				return index
 		
@@ -103,7 +103,6 @@ class HostsFile(object):
 		searchHost = searchHost.lower() #Hosts are case-insensitive
 		
 		for index, (notComment, ip, hosts) in enumerate(self._iterAll()):
-			print(notComment, hosts)
 			if notComment:
 				if searchHost in hosts:
 					return index
@@ -161,14 +160,26 @@ class HostsFile(object):
 		indexIP  = self.getIndexByIP(removal)
 		indexHost = self.getIndexByHost(removal)
 		
-		if indexIP:
+		print(indexIP, indexHost)
+		
+		if indexIP is not None:
 			self._removeEntry(indexIP)
 		
-		elif indexHost:
-			self._removeEntry(indexHost)
+		elif indexHost is not None:
+			hostLine = self.lines[indexHost]
+			
+			currentHosts = hostLine[3]
+			
+			if len(currentHosts) > 1: #Only remove single host
+				currentHosts.remove(removal)
+			   
+			else: #Remove entire line
+				self._removeEntry(indexHost)
 	
 	def setHost(self, ip, host, comment=None):
 		"""Either updates a host/ip or adds an entry"""
+
+		host = host.lower()
 		
 		if not HostTools.verifyIP(ip):
 			raise ValueError('ip incorrectly formatted')
@@ -181,15 +192,25 @@ class HostsFile(object):
 		
 		if indexIP == indexHost:
 			if indexIP is None: #Entry must not exist
-				self._addEntry(ip, host, comment)
+				self._addEntry(ip, [host], comment)
 			
 			else: #Exact entry already exists. Do nothing.
-				pass
+					pass
 		
-		elif not indexIP: #Host must already exist, but not IP. Overwriting it.
-			self._setIndex(indexHost, ip, host, comment)
+		elif indexIP is None: #Host must already exist, but not IP. Overwriting it.
+			hostLine = self.lines[indexHost]
+
+			currentHosts = hostLine[3]
+
+			if len(currentHosts) > 1: #Move aliases to another line
+				currentHosts.remove(host) #Remove host which is going to be reassigned
+				
+				self._addEntry(ip, [host], comment)
+			   
+			else:
+				self._setIndex(indexHost, ip, [host], comment)
 			
-		elif not indexHost: #IP must already exist, but not host. Adding alias.
+		elif indexHost is None: #IP must already exist, but not host. Adding alias.
 			self._addAlias(indexIP, host, comment)
 			
 		else: #Both IP and host exist and are separate entries. Cannot overwrite both.
@@ -197,6 +218,11 @@ class HostsFile(object):
 
 			
 def _parseHosts(text):
+	text = text.strip('\n')
+	
+	if not text: #File is empty
+		return []
+	
 	lines = []
 	
 	for index, line in enumerate(text.split('\n')):
@@ -261,4 +287,4 @@ def _parseHosts(text):
 	
 	return lines
 
-TAB_CHAR = '    '
+TAB_CHAR = '	'
